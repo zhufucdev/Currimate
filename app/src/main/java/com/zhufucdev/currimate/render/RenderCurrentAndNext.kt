@@ -41,10 +41,14 @@ class RenderCurrentAndNext(
         textSize = 18f
         typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
     }
-
     private val bodyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.White.toArgb()
         textSize = 24f
+    }
+    private val largeTitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.White.toArgb()
+        textSize = 48f
+        typeface = Typeface.DEFAULT_BOLD
     }
 
     private fun timeRemainingString(event: CalendarEvent): String {
@@ -79,6 +83,8 @@ class RenderCurrentAndNext(
     ) {
         val titlePaint =
             if (renderParameters.drawMode == DrawMode.AMBIENT) sharedAssets.textPaint else sharedAssets.titlePaint
+        val largeTitlePaint =
+            if (renderParameters.drawMode == DrawMode.AMBIENT) sharedAssets.textPaint else largeTitlePaint
 
         val currTitleSize = Rect()
         titlePaint.getTextBounds(current.title, 0, current.title.length, currTitleSize)
@@ -152,7 +158,7 @@ class RenderCurrentAndNext(
 
         val nextTitleBounds = run {
             val t = Rect()
-            titlePaint.getTextBounds(next.title, 0, next.title.length, t)
+            largeTitlePaint.getTextBounds(next.title, 0, next.title.length, t)
             t.toRectF().apply {
                 offsetTo(
                     contentBounds.centerX() + (calendarIcon.width - t.width()) / 2f,
@@ -160,15 +166,16 @@ class RenderCurrentAndNext(
                 )
             }
         }
-        canvas.drawText(next.title, nextTitleBounds.left, nextTitleBounds.bottom, titlePaint)
+        canvas.drawText(next.title, nextTitleBounds.left, nextTitleBounds.bottom, largeTitlePaint)
         canvas.drawBitmap(
             calendarIcon,
             nextTitleBounds.left - calendarIcon.width,
-            nextTitleBounds.top + (calendarIcon.height - nextTitleBounds.height()) / 2f,
-            titlePaint
+            nextTitleBounds.top + 8f,
+            largeTitlePaint
         )
 
-        val nextLocationBounds = next.location.toBottom(of = nextTitleBounds.apply { left -= calendarIcon.width * 0.618f })
+        val nextLocationBounds =
+            next.location.toBottom(of = nextTitleBounds.apply { left -= calendarIcon.width * 0.618f })
         canvas.drawText(
             next.location,
             nextLocationBounds.left,
