@@ -61,6 +61,9 @@ dependencies {
   implementation libs.androidx.activity.compose
   implementation libs.androidx.splashscreen
 
+  // General wear os dependencies
+  implementation libs.wear
+
   // Compose for Wear OS Dependencies
   // NOTE: DO NOT INCLUDE a dependency on androidx.compose.material:material.
   // androidx.wear.compose:compose-material is designed as a replacement not an addition to

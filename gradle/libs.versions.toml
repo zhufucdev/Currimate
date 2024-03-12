@@ -13,6 +13,7 @@ ui-test-junit4 = "1.6.3"
 ui-test-manifest = "1.6.3"
 watchface = "1.2.1"
 kotlin = "1.9.22"
+wear = "1.3.0"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
@@ -45,6 +46,7 @@ wear-watchface-complications-rendering = { module = "androidx.wear.watchface:wat
 wear-watchface-data = { module = "androidx.wear.watchface:watchface-data", version.ref = "watchface" }
 wear-watchface-editor = { module = "androidx.wear.watchface:watchface-editor", version.ref = "watchface" }
 wear-watchface-style = { module = "androidx.wear.watchface:watchface-style", version.ref = "watchface" }
+wear = { module = "androidx.wear:wear", version.ref = "wear" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }

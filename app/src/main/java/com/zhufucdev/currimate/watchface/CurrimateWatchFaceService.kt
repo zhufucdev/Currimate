@@ -1,7 +1,5 @@
-package com.zhufucdev.currimate
+package com.zhufucdev.currimate.watchface
 
-import android.content.Intent
-import android.os.IBinder
 import android.view.SurfaceHolder
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.ComplicationSlotsManager

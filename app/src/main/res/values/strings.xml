@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Currimate</string>
-    <string name="name_watch_face">Calender Focus</string>
+    <string name="title_watch_face">Calender Focus</string>
+    <string name="span_permission_granted">permission granted</string>
+    <string name="span_permission_denied">permission denied</string>
+    <string name="par_grant">Grant</string>
+    <plurals name="par_minutes_remaining">
+        <item quantity="one">%d minute remaining</item>
+        <item quantity="other">%d minutes remaining</item>
+    </plurals>
+    <plurals name="par_in_minutes">
+        <item quantity="one">in %d minute</item>
+        <item quantity="other">in %d minutes</item>
+    </plurals>
+    <string name="par_at_present">at present</string>
+    <plurals name="par_minutes_ago">
+        <item quantity="one">%d minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
 </resources>
