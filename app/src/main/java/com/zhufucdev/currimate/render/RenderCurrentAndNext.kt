@@ -15,7 +15,6 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import com.zhufucdev.currimate.CalendarEvent
 import com.zhufucdev.currimate.R
-import com.zhufucdev.currimate.beginInstant
 import com.zhufucdev.currimate.endInstant
 import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.Duration
@@ -56,23 +55,6 @@ class RenderCurrentAndNext(
         val t = Duration.between(Instant.now(), event.endInstant).toMinutes().toInt()
         return sharedAssets.context.resources
             .getQuantityString(R.plurals.par_minutes_remaining, t, t)
-    }
-
-    private fun smartTimeString(event: CalendarEvent): String {
-        val t =
-            Duration.between(Instant.now(), event.beginInstant).toMinutes().toInt()
-        return if (t > 0) {
-            sharedAssets.context.resources.getQuantityString(R.plurals.par_in_minutes, t, t)
-        } else if (t == 0) {
-            sharedAssets.context.getString(R.string.par_at_present)
-        } else if (t > -10) {
-            sharedAssets.context.resources
-                .getQuantityString(R.plurals.par_minutes_ago, -t, -t)
-        } else {
-            val k = Duration.between(Instant.now(), event.endInstant).toMinutes().toInt()
-            sharedAssets.context.resources
-                .getQuantityString(R.plurals.par_minutes_remaining, k, k)
-        }
     }
 
     override fun render(
