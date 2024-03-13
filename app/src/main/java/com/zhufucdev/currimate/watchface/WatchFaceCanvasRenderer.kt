@@ -1,6 +1,7 @@
 package com.zhufucdev.currimate.watchface
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
@@ -12,9 +13,11 @@ import androidx.annotation.Px
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.drawable.toBitmap
+import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyleSetting
 import com.zhufucdev.currimate.CalendarEvent
 import com.zhufucdev.currimate.CalendarEvents
 import com.zhufucdev.currimate.beginInstant
@@ -37,7 +40,7 @@ class WatchFaceCanvasRenderer(
     private val context: Context,
     surfaceHolder: SurfaceHolder,
     watchState: WatchState,
-    currentUserStyleRepository: CurrentUserStyleRepository,
+    private val currentUserStyleRepository: CurrentUserStyleRepository,
     canvasType: Int
 ) : Renderer.CanvasRenderer2<WatchFaceCanvasRenderer.CurrimateSharedAssets>(
     surfaceHolder,
@@ -47,7 +50,10 @@ class WatchFaceCanvasRenderer(
     FRAME_PERIOD_EXPECTED,
     false
 ) {
-    class CurrimateSharedAssets(val context: Context) : SharedAssets {
+    class CurrimateSharedAssets(
+        val context: Context,
+        private val currentUserStyleRepository: CurrentUserStyleRepository
+    ) : SharedAssets {
         fun fromDrawable(id: Int, tint: Color, @Px width: Int? = null, @Px height: Int? = null) =
             context.getDrawable(id)!!
                 .apply { setTint(tint.toArgb()) }.let {
@@ -62,12 +68,12 @@ class WatchFaceCanvasRenderer(
             private set
         private val eventsFetcher: Timer
 
-        val renderWatchface = RenderWatchface(this)
+        val renderWatchface = RenderWatchface(this, currentUserStyleRepository)
 
         private var mCurrNext: Triple<CalendarEvent, CalendarEvent, RenderCurrentAndNext>? = null
         fun renderCurrentAndNext(current: CalendarEvent, next: CalendarEvent) =
             mCurrNext?.takeIf { it.first == current && it.second == next }?.third
-                ?: RenderCurrentAndNext(this, current, next)
+                ?: RenderCurrentAndNext(this, currentUserStyleRepository, current, next)
                     .also {
                         mCurrNext?.third?.onDestroy()
                         mCurrNext = Triple(current, next, it)
@@ -76,7 +82,7 @@ class WatchFaceCanvasRenderer(
         private var mSolo: Pair<CalendarEvent, RenderSoloOngoing>? = null
         fun renderSoloOngoing(event: CalendarEvent) =
             mSolo?.takeIf { it.first == event }?.second
-                ?: RenderSoloOngoing(this, event)
+                ?: RenderSoloOngoing(this, currentUserStyleRepository, event)
                     .also {
                         mSolo?.second?.onDestroy()
                         mSolo = event to it
@@ -105,7 +111,7 @@ class WatchFaceCanvasRenderer(
     }
 
     override suspend fun createSharedAssets(): CurrimateSharedAssets =
-        CurrimateSharedAssets(context)
+        CurrimateSharedAssets(context, currentUserStyleRepository)
 
     override fun renderHighlightLayer(
         canvas: Canvas,
@@ -123,7 +129,6 @@ class WatchFaceCanvasRenderer(
         sharedAssets: CurrimateSharedAssets
     ) {
         canvas.drawRect(bounds, Paint())
-
 
         val contentBounds = run {
             val width = bounds.width() / 4f * sqrt(2f)

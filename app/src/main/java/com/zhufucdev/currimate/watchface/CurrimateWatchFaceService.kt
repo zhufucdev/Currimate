@@ -8,6 +8,9 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting
+import com.zhufucdev.currimate.R
 
 class CurrimateWatchFaceService : WatchFaceService() {
     override suspend fun createWatchFace(
@@ -28,4 +31,6 @@ class CurrimateWatchFaceService : WatchFaceService() {
             renderer = renderer
         )
     }
+
+    override fun createUserStyleSchema() = createUserScheme(this)
 }

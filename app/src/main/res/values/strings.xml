@@ -18,4 +18,15 @@
         <item quantity="one">%d minute ago</item>
         <item quantity="other">%d minutes ago</item>
     </plurals>
+    <string name="title_color">Color</string>
+    <string name="par_des_color">Accent color for hands</string>
+    <string name="title_salmon">Salmon</string>
+    <string name="title_raspberry">Raspberry</string>
+    <string name="title_magenta">Magenta</string>
+    <string name="title_strawberry">Strawberry</string>
+    <string name="title_tangerine">Tangerine</string>
+    <string name="title_aqua">Aqua</string>
+    <string name="title_blueberry">Blueberry</string>
+    <string name="title_lime">Lime</string>
+    <string name="title_sea_foam">Sea foam</string>
 </resources>

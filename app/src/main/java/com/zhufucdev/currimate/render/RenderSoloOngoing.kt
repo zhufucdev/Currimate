@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.toRectF
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.zhufucdev.currimate.CalendarEvent
 import com.zhufucdev.currimate.R
 import com.zhufucdev.currimate.theme.LargeTitlePaint
@@ -17,8 +18,9 @@ import java.time.ZonedDateTime
 
 class RenderSoloOngoing(
     sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets,
+    currentUserStyleRepository: CurrentUserStyleRepository,
     private val event: CalendarEvent
-) : RenderTimeText(sharedAssets) {
+) : RenderTimeText(sharedAssets, currentUserStyleRepository) {
     private val calendarIcon =
         sharedAssets.fromDrawable(R.drawable.ic_calendar_start_outline, Color.White)
 
@@ -53,7 +55,8 @@ class RenderSoloOngoing(
             bounds,
             PointF(bounds.exactCenterX(), bounds.exactCenterY()),
             zonedDateTime,
-            renderParameters
+            renderParameters,
+            currentUserStyleRepository
         )
 
         drawFocusedEvent(

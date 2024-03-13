@@ -5,14 +5,21 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.zhufucdev.currimate.theme.TimePaint
 import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.PI
 
-abstract class RenderTimeText(sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets) :
-    Renderable<WatchFaceCanvasRenderer.CurrimateSharedAssets>(sharedAssets) {
+abstract class RenderTimeText(
+    sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets,
+    currentUserStyleRepository: CurrentUserStyleRepository
+) :
+    Renderable<WatchFaceCanvasRenderer.CurrimateSharedAssets>(
+        sharedAssets,
+        currentUserStyleRepository
+    ) {
 
     override fun render(
         canvas: Canvas,

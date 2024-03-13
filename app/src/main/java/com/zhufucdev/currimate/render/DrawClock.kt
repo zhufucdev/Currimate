@@ -8,13 +8,14 @@ import android.graphics.RectF
 import androidx.core.graphics.withRotation
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyleSetting
 import com.zhufucdev.currimate.theme.HOUR_HAND_ROUNDNESS
 import com.zhufucdev.currimate.theme.HOUR_HAND_WIDTH
-import com.zhufucdev.currimate.theme.HourHandPaint
 import com.zhufucdev.currimate.theme.MINUTE_HAND_ROUNDNESS
 import com.zhufucdev.currimate.theme.MINUTE_HAND_WIDTH
-import com.zhufucdev.currimate.theme.MinuteHandPaint
-import com.zhufucdev.currimate.theme.SecondHandPaint
+import com.zhufucdev.currimate.watchface.ID_COLOR_SETTINGS
+import com.zhufucdev.currimate.watchface.UserStyleColors
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoField
 import kotlin.math.PI
@@ -26,8 +27,16 @@ fun drawClock(
     bounds: Rect,
     clockCenter: PointF,
     zonedDateTime: ZonedDateTime,
-    renderParameters: RenderParameters
+    renderParameters: RenderParameters,
+    currentUserStyleRepository: CurrentUserStyleRepository,
 ) {
+    val userStyle = currentUserStyleRepository.userStyle.value
+    val colorSettings =
+        userStyle[UserStyleSetting.Id(ID_COLOR_SETTINGS)] as UserStyleSetting.ListUserStyleSetting.ListOption
+    val colorEnum =
+        UserStyleColors.fromOptionId(colorSettings.id.value.decodeToString())
+            ?: error("Color ${colorSettings.displayName} not implemented")
+
     val hourHandLength = 0.5f * (HOUR_HAND_WIDTH / 2 + bounds.bottom - clockCenter.y)
     val hourHandRotation =
         ((zonedDateTime.hour % 12) / 12f + zonedDateTime.minute / 720F) * 360
@@ -42,13 +51,12 @@ fun drawClock(
             hourHandOutline,
             HOUR_HAND_ROUNDNESS,
             HOUR_HAND_ROUNDNESS,
-            if (renderParameters.drawMode == DrawMode.AMBIENT) {
-                Paint(HourHandPaint).apply {
-                    style = Paint.Style.STROKE
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = colorEnum.hourHandColor
+                if (renderParameters.drawMode == DrawMode.AMBIENT) {
                     strokeWidth = HOUR_HAND_WIDTH * 0.1f
+                    style = Paint.Style.STROKE
                 }
-            } else {
-                HourHandPaint
             }
         )
     }
@@ -63,7 +71,7 @@ fun drawClock(
             clockCenter.y + MINUTE_HAND_WIDTH / 2,
             MINUTE_HAND_ROUNDNESS,
             MINUTE_HAND_ROUNDNESS,
-            MinuteHandPaint
+            Paint(Paint.ANTI_ALIAS_FLAG).apply { color = colorEnum.minuteHandColor }
         )
     }
 
@@ -82,7 +90,7 @@ fun drawClock(
                 clockCenter.y,
                 clockCenter.x,
                 clockCenter.y + secondHandLength,
-                SecondHandPaint
+                Paint(Paint.ANTI_ALIAS_FLAG).apply { color = colorEnum.secondHandColor }
             )
         }
     }

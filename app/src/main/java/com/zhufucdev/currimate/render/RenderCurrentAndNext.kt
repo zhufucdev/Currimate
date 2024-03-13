@@ -12,10 +12,10 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.toRectF
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.zhufucdev.currimate.CalendarEvent
 import com.zhufucdev.currimate.R
 import com.zhufucdev.currimate.endInstant
-import com.zhufucdev.currimate.theme.BodyPaint
 import com.zhufucdev.currimate.theme.LargeTitlePaint
 import com.zhufucdev.currimate.theme.ParPaint
 import com.zhufucdev.currimate.theme.TextPaint
@@ -27,9 +27,10 @@ import java.time.ZonedDateTime
 
 class RenderCurrentAndNext(
     sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets,
+    currentUserStyleRepository: CurrentUserStyleRepository,
     private val current: CalendarEvent,
     private val next: CalendarEvent
-) : RenderTimeText(sharedAssets) {
+) : RenderTimeText(sharedAssets, currentUserStyleRepository) {
     private val timerStandIcon =
         sharedAssets.fromDrawable(
             R.drawable.ic_timer_sand,
@@ -129,7 +130,14 @@ class RenderCurrentAndNext(
         }
 
         val clockCenter = PointF(bounds.exactCenterX(), nextTimeBounds.centerY())
-        drawClock(canvas, bounds, clockCenter, zonedDateTime, renderParameters)
+        drawClock(
+            canvas,
+            bounds,
+            clockCenter,
+            zonedDateTime,
+            renderParameters,
+            currentUserStyleRepository
+        )
 
         canvas.drawText(
             current.title,
@@ -145,7 +153,14 @@ class RenderCurrentAndNext(
             ParPaint
         )
 
-        drawFocusedEvent(next, canvas, calendarIcon, nextTimeString, nextTitleBounds, renderParameters)
+        drawFocusedEvent(
+            next,
+            canvas,
+            calendarIcon,
+            nextTimeString,
+            nextTitleBounds,
+            renderParameters
+        )
 
         super.render(canvas, bounds, contentBounds, zonedDateTime, renderParameters)
     }
