@@ -178,4 +178,8 @@ class RenderCurrentAndNext(
         super.render(canvas, bounds, contentBounds, zonedDateTime, renderParameters)
     }
 
+    override fun onDestroy() {
+        calendarIcon.recycle()
+        timerStandIcon.recycle()
+    }
 }

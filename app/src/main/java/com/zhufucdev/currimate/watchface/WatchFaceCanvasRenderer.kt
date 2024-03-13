@@ -60,13 +60,19 @@ class WatchFaceCanvasRenderer(
         fun renderCurrentAndNext(current: CalendarEvent, next: CalendarEvent) =
             mCurrNext?.takeIf { it.first == current && it.second == next }?.third
                 ?: RenderCurrentAndNext(this, current, next)
-                    .also { mCurrNext = Triple(current, next, it) }
+                    .also {
+                        mCurrNext?.third?.onDestroy()
+                        mCurrNext = Triple(current, next, it)
+                    }
 
         private var mSolo: Pair<CalendarEvent, RenderSoloOngoing>? = null
         fun renderSoloOngoing(event: CalendarEvent) =
             mSolo?.takeIf { it.first == event }?.second
                 ?: RenderSoloOngoing(this, event)
-                    .also { mSolo = event to it }
+                    .also {
+                        mSolo?.second?.onDestroy()
+                        mSolo = event to it
+                    }
 
         init {
 //            val startMills = Calendar.getInstance().timeInMillis
