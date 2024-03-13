@@ -3,13 +3,17 @@ package com.zhufucdev.currimate.render
 import android.graphics.Canvas
 import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.toRectF
+import androidx.core.graphics.withRotation
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import com.zhufucdev.currimate.CalendarEvent
@@ -20,6 +24,15 @@ import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoField
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sqrt
+
+private const val HOUR_HAND_WIDTH = 24f
+private const val HOUR_HAND_ROUNDNESS = 16f
+private const val MINUTE_HAND_WIDTH = 12f
+private const val MINUTE_HAND_ROUNDNESS = 8f
 
 class RenderCurrentAndNext(
     sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets,
@@ -49,6 +62,16 @@ class RenderCurrentAndNext(
         color = Color.White.toArgb()
         textSize = 48f
         typeface = Typeface.DEFAULT_BOLD
+    }
+    private val hourHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color(204, 110, 69, 255).toArgb()
+    }
+    private val minuteHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.LightGray.toArgb()
+    }
+    private val secondHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color(107, 53, 30, 255).toArgb()
+        strokeWidth = 4f
     }
 
     private fun timeRemainingString(event: CalendarEvent): String {
@@ -105,6 +128,20 @@ class RenderCurrentAndNext(
                 )
             }
         }
+        val nextTitleBounds = run {
+            val t = Rect()
+            largeTitlePaint.getTextBounds(next.title, 0, next.title.length, t)
+            t.toRectF().apply {
+                offsetTo(
+                    contentBounds.centerX() + (calendarIcon.width - t.width()) / 2f,
+                    maxOf(currRemainingBounds.bottom + 12f, bounds.exactCenterY() - t.height())
+                )
+            }
+        }
+        val nextLocationBounds =
+            next.location.toBottom(of = RectF(nextTitleBounds).apply { left -= calendarIcon.width * 0.618f })
+        val nextTimeString = smartTimeString(next)
+        val nextTimeBounds = nextTimeString.toBottom(of = nextLocationBounds, margin = 12f)
 
         if (renderParameters.drawMode != DrawMode.AMBIENT) {
             val timerStandIconBounds = RectF(
@@ -142,6 +179,66 @@ class RenderCurrentAndNext(
             canvas.drawRect(timerStandIconBounds, iconMaskPaint)
         }
 
+        val clockCenter = PointF(bounds.exactCenterX(), nextTimeBounds.centerY())
+        val hourHandLength = 0.5f * (HOUR_HAND_WIDTH / 2 + bounds.bottom - clockCenter.y)
+        val hourHandRotation =
+            ((zonedDateTime.hour % 12) / 12f + zonedDateTime.minute / 3600f) * 360
+        val hourHandOutline = RectF(
+            clockCenter.x - HOUR_HAND_WIDTH / 2,
+            clockCenter.y - HOUR_HAND_WIDTH / 2 - hourHandLength,
+            clockCenter.x + HOUR_HAND_WIDTH / 2,
+            clockCenter.y + HOUR_HAND_WIDTH / 2,
+        )
+        canvas.withRotation(hourHandRotation, clockCenter.x, clockCenter.y) {
+            canvas.drawRoundRect(
+                hourHandOutline,
+                HOUR_HAND_ROUNDNESS,
+                HOUR_HAND_ROUNDNESS,
+                if (renderParameters.drawMode == DrawMode.AMBIENT) {
+                    Paint(hourHandPaint).apply {
+                        style = Paint.Style.STROKE
+                        strokeWidth = HOUR_HAND_WIDTH * 0.1f
+                    }
+                } else {
+                    hourHandPaint
+                }
+            )
+        }
+
+        val minuteHandRotation = (zonedDateTime.minute / 60f + zonedDateTime.second / 3600f) * 360
+        val minuteHandLength = hourHandLength * 1.8f
+        canvas.withRotation(minuteHandRotation, clockCenter.x, clockCenter.y) {
+            canvas.drawRoundRect(
+                clockCenter.x - MINUTE_HAND_WIDTH / 2,
+                clockCenter.y - MINUTE_HAND_WIDTH / 2 - minuteHandLength,
+                clockCenter.x + MINUTE_HAND_WIDTH / 2,
+                clockCenter.y + MINUTE_HAND_WIDTH / 2,
+                MINUTE_HAND_ROUNDNESS,
+                MINUTE_HAND_ROUNDNESS,
+                minuteHandPaint
+            )
+        }
+
+        if (renderParameters.drawMode != DrawMode.AMBIENT) {
+            val secondHandRotation =
+                (zonedDateTime.second / 60f + zonedDateTime[ChronoField.MILLI_OF_SECOND] / 1000f / 60f) * 360
+            val secondHandLength = run {
+                val h = bounds.centerY() - clockCenter.y
+                val t = cos(secondHandRotation / 180 * PI).toFloat()
+                val r = bounds.width() / 2f
+                (h * t - sqrt(h * h * t * t - h * h + r * r)) * 0.92f
+            }
+            canvas.withRotation(secondHandRotation, clockCenter.x, clockCenter.y) {
+                canvas.drawLine(
+                    clockCenter.x,
+                    clockCenter.y,
+                    clockCenter.x,
+                    clockCenter.y + secondHandLength,
+                    secondHandPaint
+                )
+            }
+        }
+
         canvas.drawText(
             current.title,
             contentBounds.centerX() - currTitleSize.width() / 2f,
@@ -156,36 +253,35 @@ class RenderCurrentAndNext(
             parPaint
         )
 
-        val nextTitleBounds = run {
-            val t = Rect()
-            largeTitlePaint.getTextBounds(next.title, 0, next.title.length, t)
-            t.toRectF().apply {
-                offsetTo(
-                    contentBounds.centerX() + (calendarIcon.width - t.width()) / 2f,
-                    maxOf(currRemainingBounds.bottom + 12f, bounds.exactCenterY() - t.height())
-                )
-            }
+        if (renderParameters.drawMode != DrawMode.AMBIENT) {
+            canvas.drawText(
+                next.title,
+                nextTitleBounds.left,
+                nextTitleBounds.bottom,
+                largeTitlePaint
+            )
+            canvas.drawBitmap(
+                calendarIcon,
+                nextTitleBounds.left - calendarIcon.width,
+                nextTitleBounds.top + 8f,
+                largeTitlePaint
+            )
+        } else {
+            canvas.drawText(
+                next.title,
+                nextTitleBounds.left - calendarIcon.width / 2f,
+                nextTitleBounds.bottom,
+                largeTitlePaint
+            )
         }
-        canvas.drawText(next.title, nextTitleBounds.left, nextTitleBounds.bottom, largeTitlePaint)
-        canvas.drawBitmap(
-            calendarIcon,
-            nextTitleBounds.left - calendarIcon.width,
-            nextTitleBounds.top + 8f,
-            largeTitlePaint
-        )
-
-        val nextLocationBounds =
-            next.location.toBottom(of = nextTitleBounds.apply { left -= calendarIcon.width * 0.618f })
         canvas.drawText(
             next.location,
             nextLocationBounds.left,
             nextLocationBounds.bottom,
             bodyPaint
         )
-
-        val nextTimeString = smartTimeString(next)
-        val nextTimeBounds = nextTimeString.toBottom(of = nextLocationBounds, margin = 12f)
         canvas.drawText(nextTimeString, nextTimeBounds.left, nextTimeBounds.bottom, bodyPaint)
+
 
         super.render(canvas, bounds, contentBounds, zonedDateTime, renderParameters)
     }
