@@ -13,7 +13,7 @@ val HourHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
     color = Color(204, 110, 69, 255).toArgb()
 }
 val MinuteHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-    color = Color.LightGray.toArgb()
+    color = Color(181, 181, 181, 255).toArgb()
 }
 val SecondHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
     color = Color(107, 53, 30, 255).toArgb()
