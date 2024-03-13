@@ -145,35 +145,7 @@ class RenderCurrentAndNext(
             ParPaint
         )
 
-        if (renderParameters.drawMode != DrawMode.AMBIENT) {
-            canvas.drawText(
-                next.title,
-                nextTitleBounds.left,
-                nextTitleBounds.bottom,
-                largeTitlePaint
-            )
-            canvas.drawBitmap(
-                calendarIcon,
-                nextTitleBounds.left - calendarIcon.width,
-                nextTitleBounds.top + 8f,
-                largeTitlePaint
-            )
-        } else {
-            canvas.drawText(
-                next.title,
-                nextTitleBounds.left - calendarIcon.width / 2f,
-                nextTitleBounds.bottom,
-                largeTitlePaint
-            )
-        }
-        canvas.drawText(
-            next.location,
-            nextLocationBounds.left,
-            nextLocationBounds.bottom,
-            BodyPaint
-        )
-        canvas.drawText(nextTimeString, nextTimeBounds.left, nextTimeBounds.bottom, BodyPaint)
-
+        drawFocusedEvent(next, canvas, calendarIcon, nextTimeString, nextTitleBounds, renderParameters)
 
         super.render(canvas, bounds, contentBounds, zonedDateTime, renderParameters)
     }
