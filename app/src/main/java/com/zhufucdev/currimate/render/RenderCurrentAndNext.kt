@@ -7,7 +7,6 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
-import android.graphics.Typeface
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.toRectF
@@ -16,6 +15,11 @@ import androidx.wear.watchface.RenderParameters
 import com.zhufucdev.currimate.CalendarEvent
 import com.zhufucdev.currimate.R
 import com.zhufucdev.currimate.endInstant
+import com.zhufucdev.currimate.theme.BodyPaint
+import com.zhufucdev.currimate.theme.LargeTitlePaint
+import com.zhufucdev.currimate.theme.ParPaint
+import com.zhufucdev.currimate.theme.TextPaint
+import com.zhufucdev.currimate.theme.TitlePaint
 import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.Duration
 import java.time.Instant
@@ -36,21 +40,6 @@ class RenderCurrentAndNext(
     private val calendarIcon =
         sharedAssets.fromDrawable(R.drawable.ic_calendar_start_outline, Color.White)
 
-    private val parPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.White.toArgb()
-        textSize = 18f
-        typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
-    }
-    private val bodyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.White.toArgb()
-        textSize = 24f
-    }
-    private val largeTitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.White.toArgb()
-        textSize = 48f
-        typeface = Typeface.DEFAULT_BOLD
-    }
-
     private fun timeRemainingString(event: CalendarEvent): String {
         val t = Duration.between(Instant.now(), event.endInstant).toMinutes().toInt()
         return sharedAssets.context.resources
@@ -65,9 +54,9 @@ class RenderCurrentAndNext(
         renderParameters: RenderParameters
     ) {
         val titlePaint =
-            if (renderParameters.drawMode == DrawMode.AMBIENT) sharedAssets.textPaint else sharedAssets.titlePaint
+            if (renderParameters.drawMode == DrawMode.AMBIENT) TextPaint else TitlePaint
         val largeTitlePaint =
-            if (renderParameters.drawMode == DrawMode.AMBIENT) sharedAssets.textPaint else largeTitlePaint
+            if (renderParameters.drawMode == DrawMode.AMBIENT) TextPaint else LargeTitlePaint
 
         val currTitleSize = Rect()
         titlePaint.getTextBounds(current.title, 0, current.title.length, currTitleSize)
@@ -75,7 +64,7 @@ class RenderCurrentAndNext(
         val currRemainingStr = timeRemainingString(current)
         val currRemainingBounds = run {
             val t = Rect()
-            parPaint.getTextBounds(
+            ParPaint.getTextBounds(
                 currRemainingStr,
                 0,
                 currRemainingStr.length,
@@ -153,7 +142,7 @@ class RenderCurrentAndNext(
             currRemainingStr,
             currRemainingBounds.left,
             currRemainingBounds.bottom,
-            parPaint
+            ParPaint
         )
 
         if (renderParameters.drawMode != DrawMode.AMBIENT) {
@@ -181,22 +170,12 @@ class RenderCurrentAndNext(
             next.location,
             nextLocationBounds.left,
             nextLocationBounds.bottom,
-            bodyPaint
+            BodyPaint
         )
-        canvas.drawText(nextTimeString, nextTimeBounds.left, nextTimeBounds.bottom, bodyPaint)
+        canvas.drawText(nextTimeString, nextTimeBounds.left, nextTimeBounds.bottom, BodyPaint)
 
 
         super.render(canvas, bounds, contentBounds, zonedDateTime, renderParameters)
     }
 
-    private fun String.toBottom(of: RectF, margin: Float = 20f, paint: Paint = bodyPaint): RectF {
-        val t = Rect()
-        bodyPaint.getTextBounds(this, 0, next.location.length, t)
-        return t.toRectF().apply {
-            offsetTo(
-                of.left,
-                of.bottom + margin
-            )
-        }
-    }
 }

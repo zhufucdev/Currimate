@@ -54,23 +54,6 @@ class WatchFaceCanvasRenderer(
         private val delegatedEvents = CalendarEvents(context.contentResolver)
         val events: List<CalendarEvent>
 
-        val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.White.toArgb()
-            textSize = 32f
-        }
-
-        val timePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.White.toArgb()
-            textSize = 32f
-            typeface = Typeface.DEFAULT_BOLD
-        }
-
-        val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.White.toArgb()
-            textSize = 42f
-            typeface = Typeface.DEFAULT_BOLD
-        }
-
         val renderWatchface = RenderWatchface(this)
 
         private var mCurrNext: Triple<CalendarEvent, CalendarEvent, RenderCurrentAndNext>? = null

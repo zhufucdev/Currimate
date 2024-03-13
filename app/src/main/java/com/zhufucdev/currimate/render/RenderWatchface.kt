@@ -7,6 +7,7 @@ import android.graphics.RectF
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.wear.watchface.RenderParameters
+import com.zhufucdev.currimate.theme.TextPaint
 import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.ZonedDateTime
 
@@ -27,7 +28,7 @@ class RenderWatchface(sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAsset
             "Watch face placeholder",
             contentBounds.left,
             contentBounds.top,
-            sharedAssets.textPaint
+            TextPaint
         )
         canvas.drawLine(
             contentBounds.left,

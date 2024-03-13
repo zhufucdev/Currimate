@@ -5,6 +5,7 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import androidx.wear.watchface.RenderParameters
+import com.zhufucdev.currimate.theme.TimePaint
 import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -28,7 +29,7 @@ abstract class RenderTimeText(sharedAssets: WatchFaceCanvasRenderer.CurrimateSha
             bounds.height() / 2f + radius
         )
         val timeString = zonedDateTime.format(DateTimeFormatter.ofPattern("hh:mm"))
-        val timeTextWidth = sharedAssets.timePaint.measureText(timeString)
+        val timeTextWidth = TimePaint.measureText(timeString)
         val angularOffset = (timeTextWidth / (2 * PI * radius) * 180).toFloat()
         val timeTextPath = Path().apply {
             addArc(timeBounds, -90f - angularOffset, angularOffset * 2)
@@ -38,7 +39,7 @@ abstract class RenderTimeText(sharedAssets: WatchFaceCanvasRenderer.CurrimateSha
             timeTextPath,
             0f,
             0f,
-            sharedAssets.timePaint
+            TimePaint
         )
 
     }
