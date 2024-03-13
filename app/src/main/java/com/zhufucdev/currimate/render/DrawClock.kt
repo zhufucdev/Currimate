@@ -21,10 +21,16 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sqrt
 
-fun drawClock(canvas: Canvas, bounds: Rect, clockCenter: PointF, zonedDateTime: ZonedDateTime, renderParameters: RenderParameters) {
+fun drawClock(
+    canvas: Canvas,
+    bounds: Rect,
+    clockCenter: PointF,
+    zonedDateTime: ZonedDateTime,
+    renderParameters: RenderParameters
+) {
     val hourHandLength = 0.5f * (HOUR_HAND_WIDTH / 2 + bounds.bottom - clockCenter.y)
     val hourHandRotation =
-        ((zonedDateTime.hour % 12) / 12f + zonedDateTime.minute / 3600f) * 360
+        ((zonedDateTime.hour % 12) / 12f + zonedDateTime.minute / 720F) * 360
     val hourHandOutline = RectF(
         clockCenter.x - HOUR_HAND_WIDTH / 2,
         clockCenter.y - HOUR_HAND_WIDTH / 2 - hourHandLength,
