@@ -25,6 +25,10 @@ import com.zhufucdev.currimate.render.RenderWatchface
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.Calendar
+import java.util.Timer
+import java.util.TimerTask
+import kotlin.concurrent.timer
+import kotlin.concurrent.timerTask
 import kotlin.math.sqrt
 
 private const val FRAME_PERIOD_EXPECTED = 16L
@@ -54,7 +58,9 @@ class WatchFaceCanvasRenderer(
                 }
 
         private val delegatedEvents = CalendarEvents(context.contentResolver)
-        val events: List<CalendarEvent>
+        var events: List<CalendarEvent>
+            private set
+        private val eventsFetcher: Timer
 
         val renderWatchface = RenderWatchface(this)
 
@@ -76,13 +82,25 @@ class WatchFaceCanvasRenderer(
                         mSolo = event to it
                     }
 
-        init {
+        private fun fetchEvents(): List<CalendarEvent> {
             val startMills = Calendar.getInstance().timeInMillis
             val endMills = Calendar.getInstance().apply { add(Calendar.DATE, 1) }.timeInMillis
-            events = delegatedEvents[startMills..endMills]
+            return delegatedEvents[startMills..endMills]
+        }
+
+        init {
+            events = fetchEvents()
+
+            val interval = Duration.ofMinutes(1).toMillis()
+            eventsFetcher = timer(daemon = true, initialDelay = interval, period = interval) {
+                events = fetchEvents()
+            }
         }
 
         override fun onDestroy() {
+            mCurrNext?.third?.onDestroy()
+            mSolo?.second?.onDestroy()
+            eventsFetcher.cancel()
         }
     }
 
@@ -133,7 +151,9 @@ class WatchFaceCanvasRenderer(
                 } else {
                     sharedAssets.renderCurrentAndNext(currentEvent, sharedAssets.events[1])
                 }
-            } else if (Duration.between(zonedDateTime.toInstant(), currentEvent.beginInstant).let { !it.isNegative && it.toHours() <= 1 }) {
+            } else if (Duration.between(zonedDateTime.toInstant(), currentEvent.beginInstant)
+                    .let { !it.isNegative && it.toHours() <= 1 }
+            ) {
                 sharedAssets.renderSoloOngoing(currentEvent)
             } else {
                 sharedAssets.renderWatchface
