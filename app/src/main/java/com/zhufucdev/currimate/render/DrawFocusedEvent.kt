@@ -32,8 +32,8 @@ fun drawFocusedEvent(
         )
         canvas.drawBitmap(
             calendarIcon,
-            titleBounds.left - calendarIcon.width,
-            titleBounds.top + 8f,
+            titleBounds.left - calendarIcon.width - 4f,
+            titleBounds.top + (titleBounds.height() - calendarIcon.height) / 2 + 2f,
             largeTitlePaint
         )
     } else {
