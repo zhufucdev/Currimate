@@ -11,7 +11,6 @@ import android.graphics.Typeface
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.toRectF
-import androidx.core.graphics.withRotation
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import com.zhufucdev.currimate.CalendarEvent
@@ -22,15 +21,6 @@ import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
-import java.time.temporal.ChronoField
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sqrt
-
-private const val HOUR_HAND_WIDTH = 24f
-private const val HOUR_HAND_ROUNDNESS = 16f
-private const val MINUTE_HAND_WIDTH = 12f
-private const val MINUTE_HAND_ROUNDNESS = 8f
 
 class RenderCurrentAndNext(
     sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets,
@@ -60,16 +50,6 @@ class RenderCurrentAndNext(
         color = Color.White.toArgb()
         textSize = 48f
         typeface = Typeface.DEFAULT_BOLD
-    }
-    private val hourHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color(204, 110, 69, 255).toArgb()
-    }
-    private val minuteHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.LightGray.toArgb()
-    }
-    private val secondHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color(107, 53, 30, 255).toArgb()
-        strokeWidth = 4f
     }
 
     private fun timeRemainingString(event: CalendarEvent): String {
@@ -178,64 +158,7 @@ class RenderCurrentAndNext(
         }
 
         val clockCenter = PointF(bounds.exactCenterX(), nextTimeBounds.centerY())
-        val hourHandLength = 0.5f * (HOUR_HAND_WIDTH / 2 + bounds.bottom - clockCenter.y)
-        val hourHandRotation =
-            ((zonedDateTime.hour % 12) / 12f + zonedDateTime.minute / 3600f) * 360
-        val hourHandOutline = RectF(
-            clockCenter.x - HOUR_HAND_WIDTH / 2,
-            clockCenter.y - HOUR_HAND_WIDTH / 2 - hourHandLength,
-            clockCenter.x + HOUR_HAND_WIDTH / 2,
-            clockCenter.y + HOUR_HAND_WIDTH / 2,
-        )
-        canvas.withRotation(hourHandRotation, clockCenter.x, clockCenter.y) {
-            canvas.drawRoundRect(
-                hourHandOutline,
-                HOUR_HAND_ROUNDNESS,
-                HOUR_HAND_ROUNDNESS,
-                if (renderParameters.drawMode == DrawMode.AMBIENT) {
-                    Paint(hourHandPaint).apply {
-                        style = Paint.Style.STROKE
-                        strokeWidth = HOUR_HAND_WIDTH * 0.1f
-                    }
-                } else {
-                    hourHandPaint
-                }
-            )
-        }
-
-        val minuteHandRotation = (zonedDateTime.minute / 60f + zonedDateTime.second / 3600f) * 360
-        val minuteHandLength = hourHandLength * 1.8f
-        canvas.withRotation(minuteHandRotation, clockCenter.x, clockCenter.y) {
-            canvas.drawRoundRect(
-                clockCenter.x - MINUTE_HAND_WIDTH / 2,
-                clockCenter.y - MINUTE_HAND_WIDTH / 2 - minuteHandLength,
-                clockCenter.x + MINUTE_HAND_WIDTH / 2,
-                clockCenter.y + MINUTE_HAND_WIDTH / 2,
-                MINUTE_HAND_ROUNDNESS,
-                MINUTE_HAND_ROUNDNESS,
-                minuteHandPaint
-            )
-        }
-
-        if (renderParameters.drawMode != DrawMode.AMBIENT) {
-            val secondHandRotation =
-                (zonedDateTime.second / 60f + zonedDateTime[ChronoField.MILLI_OF_SECOND] / 1000f / 60f) * 360
-            val secondHandLength = run {
-                val h = bounds.centerY() - clockCenter.y
-                val t = cos(secondHandRotation / 180 * PI).toFloat()
-                val r = bounds.width() / 2f
-                (h * t - sqrt(h * h * t * t - h * h + r * r)) * 0.92f
-            }
-            canvas.withRotation(secondHandRotation, clockCenter.x, clockCenter.y) {
-                canvas.drawLine(
-                    clockCenter.x,
-                    clockCenter.y,
-                    clockCenter.x,
-                    clockCenter.y + secondHandLength,
-                    secondHandPaint
-                )
-            }
-        }
+        drawClock(canvas, bounds, clockCenter, zonedDateTime, renderParameters)
 
         canvas.drawText(
             current.title,
