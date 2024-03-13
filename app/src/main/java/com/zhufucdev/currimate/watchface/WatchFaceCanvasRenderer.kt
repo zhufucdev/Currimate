@@ -86,13 +86,13 @@ class WatchFaceCanvasRenderer(
                     System.currentTimeMillis() + 30 * 60 * 1000,
                     "文德N614"
                 ),
-                CalendarEvent(
-                    1,
-                    "计算机网络Ⅰ",
-                    System.currentTimeMillis() + 60 * 60 * 1000,
-                    System.currentTimeMillis() + 120 * 60 * 1000,
-                    "文德N615"
-                )
+//                CalendarEvent(
+//                    1,
+//                    "计算机网络Ⅰ",
+//                    System.currentTimeMillis() + 60 * 60 * 1000,
+//                    System.currentTimeMillis() + 120 * 60 * 1000,
+//                    "文德N615"
+//                )
             )
         }
 
