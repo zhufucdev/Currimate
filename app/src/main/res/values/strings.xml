@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Currimate</string>
-    <string name="title_watch_face">Calender Focus</string>
+    <string name="title_watch_face">Calendar Focus</string>
     <string name="span_permission_granted">permission granted</string>
     <string name="span_permission_denied">permission denied</string>
     <string name="par_grant">Grant</string>
