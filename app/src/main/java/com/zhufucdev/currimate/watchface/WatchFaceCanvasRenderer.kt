@@ -80,7 +80,6 @@ class WatchFaceCanvasRenderer(
             val startMills = Calendar.getInstance().timeInMillis
             val endMills = Calendar.getInstance().apply { add(Calendar.DATE, 1) }.timeInMillis
             events = delegatedEvents[startMills..endMills]
-            events.forEach { Log.d("event", "$it") }
         }
 
         override fun onDestroy() {
