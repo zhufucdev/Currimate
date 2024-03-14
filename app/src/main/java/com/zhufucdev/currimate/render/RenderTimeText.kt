@@ -1,5 +1,6 @@
 package com.zhufucdev.currimate.render
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Path
 import android.graphics.Rect
@@ -14,9 +15,9 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.PI
 
 abstract class RenderTimeText(
-    sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets,
+    context: Context,
     styleHolder: UserStyleHolder,
-) : Renderable<WatchFaceCanvasRenderer.CurrimateSharedAssets>(sharedAssets, styleHolder) {
+) : Renderable(context, styleHolder) {
 
     override fun render(
         canvas: Canvas,

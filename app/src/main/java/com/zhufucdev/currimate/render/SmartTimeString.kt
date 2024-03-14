@@ -8,19 +8,19 @@ import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.Duration
 import java.time.Instant
 
-fun Renderable<WatchFaceCanvasRenderer.CurrimateSharedAssets>.smartTimeString(event: CalendarEvent): String {
+fun Renderable.smartTimeString(event: CalendarEvent): String {
     val t =
         Duration.between(Instant.now(), event.beginInstant).toMinutes().toInt()
     return if (t > 0) {
-        sharedAssets.context.resources.getQuantityString(R.plurals.par_in_minutes, t, t)
+        context.resources.getQuantityString(R.plurals.par_in_minutes, t, t)
     } else if (t == 0) {
-        sharedAssets.context.getString(R.string.par_at_present)
+        context.getString(R.string.par_at_present)
     } else if (t > -10) {
-        sharedAssets.context.resources
+        context.resources
             .getQuantityString(R.plurals.par_minutes_ago, -t, -t)
     } else {
         val k = Duration.between(Instant.now(), event.endInstant).toMinutes().toInt()
-        sharedAssets.context.resources
+        context.resources
             .getQuantityString(R.plurals.par_minutes_remaining, k, k)
     }
 }

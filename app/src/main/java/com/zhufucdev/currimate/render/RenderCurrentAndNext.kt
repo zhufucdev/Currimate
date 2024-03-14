@@ -1,5 +1,6 @@
 package com.zhufucdev.currimate.render
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.LinearGradient
 import android.graphics.Paint
@@ -20,30 +21,29 @@ import com.zhufucdev.currimate.theme.ParPaint
 import com.zhufucdev.currimate.theme.TextPaint
 import com.zhufucdev.currimate.theme.TitlePaint
 import com.zhufucdev.currimate.watchface.UserStyleHolder
-import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
 
 class RenderCurrentAndNext(
-    sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets,
+    context: Context,
     styleHolder: UserStyleHolder,
     private val current: CalendarEvent,
     private val next: CalendarEvent
-) : RenderTimeText(sharedAssets, styleHolder) {
+) : RenderTimeText(context, styleHolder) {
     private val timerStandIcon =
-        sharedAssets.fromDrawable(
+        context.fromDrawable(
             R.drawable.ic_timer_sand,
             Color.White.copy(alpha = 0.5f),
             120,
             120
         )
     private val calendarIcon =
-        sharedAssets.fromDrawable(R.drawable.ic_calendar_start_outline, Color.White)
+        context.fromDrawable(R.drawable.ic_calendar_start_outline, Color.White)
 
     private fun timeRemainingString(event: CalendarEvent): String {
         val t = Duration.between(Instant.now(), event.endInstant).toMinutes().toInt()
-        return sharedAssets.context.resources
+        return context.resources
             .getQuantityString(R.plurals.par_minutes_remaining, t, t)
     }
 
