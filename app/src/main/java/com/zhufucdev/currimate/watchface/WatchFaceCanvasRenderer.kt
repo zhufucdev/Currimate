@@ -33,6 +33,10 @@ import java.util.TimerTask
 import kotlin.concurrent.timer
 import kotlin.concurrent.timerTask
 import kotlin.math.sqrt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 private const val FRAME_PERIOD_EXPECTED = 16L
 
@@ -40,7 +44,7 @@ class WatchFaceCanvasRenderer(
     private val context: Context,
     surfaceHolder: SurfaceHolder,
     watchState: WatchState,
-    private val currentUserStyleRepository: CurrentUserStyleRepository,
+    currentUserStyleRepository: CurrentUserStyleRepository,
     canvasType: Int
 ) : Renderer.CanvasRenderer2<WatchFaceCanvasRenderer.CurrimateSharedAssets>(
     surfaceHolder,
@@ -52,7 +56,7 @@ class WatchFaceCanvasRenderer(
 ) {
     class CurrimateSharedAssets(
         val context: Context,
-        private val currentUserStyleRepository: CurrentUserStyleRepository
+        private val styleHolder: UserStyleHolder
     ) : SharedAssets {
         fun fromDrawable(id: Int, tint: Color, @Px width: Int? = null, @Px height: Int? = null) =
             context.getDrawable(id)!!
@@ -68,12 +72,12 @@ class WatchFaceCanvasRenderer(
             private set
         private val eventsFetcher: Timer
 
-        val renderWatchface = RenderWatchface(this, currentUserStyleRepository)
+        val renderWatchface = RenderWatchface(this, styleHolder)
 
         private var mCurrNext: Triple<CalendarEvent, CalendarEvent, RenderCurrentAndNext>? = null
         fun renderCurrentAndNext(current: CalendarEvent, next: CalendarEvent) =
             mCurrNext?.takeIf { it.first == current && it.second == next }?.third
-                ?: RenderCurrentAndNext(this, currentUserStyleRepository, current, next)
+                ?: RenderCurrentAndNext(this, styleHolder, current, next)
                     .also {
                         mCurrNext?.third?.onDestroy()
                         mCurrNext = Triple(current, next, it)
@@ -82,7 +86,7 @@ class WatchFaceCanvasRenderer(
         private var mSolo: Pair<CalendarEvent, RenderSoloOngoing>? = null
         fun renderSoloOngoing(event: CalendarEvent) =
             mSolo?.takeIf { it.first == event }?.second
-                ?: RenderSoloOngoing(this, currentUserStyleRepository, event)
+                ?: RenderSoloOngoing(this, styleHolder, event)
                     .also {
                         mSolo?.second?.onDestroy()
                         mSolo = event to it
@@ -110,8 +114,13 @@ class WatchFaceCanvasRenderer(
         }
     }
 
+    val scope: CoroutineScope =
+        CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    private val styleHolder: UserStyleHolder = createUserStyleHolder(currentUserStyleRepository)
+
     override suspend fun createSharedAssets(): CurrimateSharedAssets =
-        CurrimateSharedAssets(context, currentUserStyleRepository)
+        CurrimateSharedAssets(context, styleHolder)
 
     override fun renderHighlightLayer(
         canvas: Canvas,

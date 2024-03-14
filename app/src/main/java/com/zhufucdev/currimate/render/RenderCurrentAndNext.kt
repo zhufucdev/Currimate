@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.toRectF
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
-import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.zhufucdev.currimate.CalendarEvent
 import com.zhufucdev.currimate.R
 import com.zhufucdev.currimate.endInstant
@@ -20,6 +19,7 @@ import com.zhufucdev.currimate.theme.LargeTitlePaint
 import com.zhufucdev.currimate.theme.ParPaint
 import com.zhufucdev.currimate.theme.TextPaint
 import com.zhufucdev.currimate.theme.TitlePaint
+import com.zhufucdev.currimate.watchface.UserStyleHolder
 import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.Duration
 import java.time.Instant
@@ -27,10 +27,10 @@ import java.time.ZonedDateTime
 
 class RenderCurrentAndNext(
     sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets,
-    currentUserStyleRepository: CurrentUserStyleRepository,
+    styleHolder: UserStyleHolder,
     private val current: CalendarEvent,
     private val next: CalendarEvent
-) : RenderTimeText(sharedAssets, currentUserStyleRepository) {
+) : RenderTimeText(sharedAssets, styleHolder) {
     private val timerStandIcon =
         sharedAssets.fromDrawable(
             R.drawable.ic_timer_sand,
@@ -136,7 +136,7 @@ class RenderCurrentAndNext(
             clockCenter,
             zonedDateTime,
             renderParameters,
-            currentUserStyleRepository
+            styleHolder.colors
         )
 
         canvas.drawText(

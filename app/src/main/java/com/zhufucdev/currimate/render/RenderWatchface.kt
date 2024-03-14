@@ -6,16 +6,17 @@ import android.graphics.Rect
 import android.graphics.RectF
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import com.zhufucdev.currimate.watchface.UserStyleHolder
 import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.ZonedDateTime
 
 class RenderWatchface(
     sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets,
-    currentUserStyleRepository: CurrentUserStyleRepository
+    styleHolder: UserStyleHolder
 ) :
     Renderable<WatchFaceCanvasRenderer.CurrimateSharedAssets>(
         sharedAssets,
-        currentUserStyleRepository
+        styleHolder
     ) {
     override fun render(
         canvas: Canvas,
@@ -30,7 +31,7 @@ class RenderWatchface(
             PointF(bounds.exactCenterX(), bounds.exactCenterY()),
             zonedDateTime,
             renderParameters,
-            currentUserStyleRepository
+            styleHolder.colors
         )
     }
 }

@@ -13,14 +13,15 @@ import com.zhufucdev.currimate.CalendarEvent
 import com.zhufucdev.currimate.R
 import com.zhufucdev.currimate.theme.LargeTitlePaint
 import com.zhufucdev.currimate.theme.TextPaint
+import com.zhufucdev.currimate.watchface.UserStyleHolder
 import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.ZonedDateTime
 
 class RenderSoloOngoing(
     sharedAssets: WatchFaceCanvasRenderer.CurrimateSharedAssets,
-    currentUserStyleRepository: CurrentUserStyleRepository,
+    styleHolder: UserStyleHolder,
     private val event: CalendarEvent
-) : RenderTimeText(sharedAssets, currentUserStyleRepository) {
+) : RenderTimeText(sharedAssets, styleHolder) {
     private val calendarIcon =
         sharedAssets.fromDrawable(R.drawable.ic_calendar_start_outline, Color.White)
 
@@ -56,7 +57,7 @@ class RenderSoloOngoing(
             PointF(bounds.exactCenterX(), bounds.exactCenterY()),
             zonedDateTime,
             renderParameters,
-            currentUserStyleRepository
+            styleHolder.colors
         )
 
         drawFocusedEvent(
