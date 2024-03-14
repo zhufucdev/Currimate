@@ -36,6 +36,7 @@ import kotlin.math.sqrt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 private const val FRAME_PERIOD_EXPECTED = 16L
@@ -173,5 +174,10 @@ class WatchFaceCanvasRenderer(
                 sharedAssets.renderWatchface
             }
         }.render(canvas, bounds, contentBounds, zonedDateTime, renderParameters)
+    }
+
+    override fun onDestroy() {
+        scope.cancel("WatchCanvasRenderer scope clear() request")
+        super.onDestroy()
     }
 }
