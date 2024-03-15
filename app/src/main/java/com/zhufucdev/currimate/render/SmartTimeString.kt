@@ -19,7 +19,7 @@ fun Renderable.smartTimeString(event: CalendarEvent): String {
         context.resources
             .getQuantityString(R.plurals.par_minutes_ago, -t, -t)
     } else {
-        val k = Duration.between(Instant.now(), event.endInstant).toMinutes().toInt()
+        val k = Duration.between(Instant.now(), event.endInstant).toMinutes().toInt() + 1
         context.resources
             .getQuantityString(R.plurals.par_minutes_remaining, k, k)
     }
