@@ -142,7 +142,7 @@ class RenderCurrentAndNext(
             canvas.drawRect(timerStandIconBounds, iconMaskPaint)
         }
 
-        val clockCenter = PointF(bounds.exactCenterX(), nextTimeBounds.centerY())
+        val clockCenter = PointF(bounds.exactCenterX(), nextTimeBounds.centerY() + 40)
         drawClock(
             canvas,
             bounds,
