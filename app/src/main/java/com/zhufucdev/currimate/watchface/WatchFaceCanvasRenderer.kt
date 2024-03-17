@@ -100,6 +100,24 @@ class WatchFaceCanvasRenderer(
         // noop
     }
 
+    private val testEvents =
+        listOf(
+            CalendarEvent(
+                1,
+                "计算机组成与体系结构明德楼实验",
+                System.currentTimeMillis(),
+                System.currentTimeMillis() + 10 * 60 * 1000L,
+                "明德N301"
+            ),
+            CalendarEvent(
+                1,
+                "计算机组成与体系结构",
+                System.currentTimeMillis() + 10 * 60 * 1000L,
+                System.currentTimeMillis() + 10 * 60 * 1000L,
+                "明德N301"
+            )
+        )
+
     override fun render(
         canvas: Canvas,
         bounds: Rect,
@@ -119,7 +137,7 @@ class WatchFaceCanvasRenderer(
             )
         }
 
-        renderableFactory.getRenderer(zonedDateTime, sharedAssets.events)
+        renderableFactory.getRenderer(zonedDateTime, testEvents)
             .render(canvas, bounds, contentBounds, zonedDateTime, renderParameters)
     }
 

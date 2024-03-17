@@ -5,24 +5,25 @@ import android.graphics.Canvas
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.toRectF
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
-import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.zhufucdev.currimate.CalendarEvent
 import com.zhufucdev.currimate.R
 import com.zhufucdev.currimate.theme.LargeTitlePaint
 import com.zhufucdev.currimate.theme.TextPaint
 import com.zhufucdev.currimate.watchface.UserStyleHolder
-import com.zhufucdev.currimate.watchface.WatchFaceCanvasRenderer
 import java.time.ZonedDateTime
+import kotlin.math.roundToInt
 
 class RenderSoloOngoing(
     context: Context,
     styleHolder: UserStyleHolder,
     private val event: CalendarEvent
 ) : RenderTimeText(context, styleHolder) {
+    private val titleRenderable = RenderText(event.title, TextPaint, context, styleHolder)
     private val calendarIcon =
         context.fromDrawable(R.drawable.ic_calendar_start_outline, Color.White)
 
@@ -39,6 +40,10 @@ class RenderSoloOngoing(
         val titleBounds = run {
             val t = Rect()
             largeTitlePaint.getTextBounds(event.title, 0, event.title.length, t)
+            if (t.width() > contentBounds.width()) {
+                t.left = contentBounds.left.roundToInt()
+                t.right = contentBounds.right.roundToInt()
+            }
             t.toRectF().apply {
                 offsetTo(
                     contentBounds.centerX() + (calendarIcon.width - t.width()) / 2f,
@@ -63,10 +68,12 @@ class RenderSoloOngoing(
 
         drawFocusedEvent(
             event,
+            titleRenderable,
             canvas,
             calendarIcon,
             timeString,
             titleBounds,
+            zonedDateTime,
             renderParameters,
         )
         super.render(canvas, bounds, contentBounds, zonedDateTime, renderParameters)

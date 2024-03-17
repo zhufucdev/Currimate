@@ -7,9 +7,11 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.RenderNode
 import android.graphics.Shader
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.toRect
 import androidx.core.graphics.toRectF
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
@@ -31,6 +33,9 @@ class RenderCurrentAndNext(
     private val current: CalendarEvent,
     private val next: CalendarEvent
 ) : RenderTimeText(context, styleHolder) {
+    private val nextTitleRenderable = RenderText(next.title, TextPaint, context, styleHolder)
+    private val currTitleRenderable = RenderText(current.title, TextPaint, context, styleHolder)
+
     private val timerStandIcon =
         context.fromDrawable(
             R.drawable.ic_timer_sand,
@@ -61,6 +66,10 @@ class RenderCurrentAndNext(
 
         val currTitleSize = Rect()
         titlePaint.getTextBounds(current.title, 0, current.title.length, currTitleSize)
+        if (currTitleSize.width() >= contentBounds.width()) {
+            currTitleSize.left = contentBounds.left.toInt()
+            currTitleSize.right = contentBounds.right.toInt()
+        }
 
         val currRemainingStr = timeRemainingString(current)
         val currRemainingBounds = run {
@@ -81,6 +90,10 @@ class RenderCurrentAndNext(
         val nextTitleBounds = run {
             val t = Rect()
             largeTitlePaint.getTextBounds(next.title, 0, next.title.length, t)
+            if (t.width() >= contentBounds.width()) {
+                t.left = contentBounds.left.toInt()
+                t.right = contentBounds.right.toInt()
+            }
             t.toRectF().apply {
                 offsetTo(
                     contentBounds.centerX() + (calendarIcon.width - t.width()) / 2f,
@@ -139,12 +152,29 @@ class RenderCurrentAndNext(
             styleHolder.colors
         )
 
-        canvas.drawText(
-            current.title,
-            contentBounds.centerX() - currTitleSize.width() / 2f,
-            contentBounds.top + currTitleSize.height(),
-            titlePaint
-        )
+        run {
+            currTitleRenderable.paint = titlePaint
+            val node = RenderNode("current event title")
+            node.setPosition(Rect(currTitleSize).apply {
+                offsetTo(
+                    (contentBounds.centerX() - currTitleSize.width() / 2).toInt(),
+                    contentBounds.top.toInt()
+                )
+                bottom += 10
+            })
+            val c = node.beginRecording()
+            val mapped = Rect(currTitleSize)
+            mapped.offsetTo(0, 0)
+            currTitleRenderable.render(
+                c,
+                mapped,
+                mapped.toRectF(),
+                zonedDateTime,
+                renderParameters
+            )
+            node.endRecording()
+            canvas.drawRenderNode(node)
+        }
 
         canvas.drawText(
             currRemainingStr,
@@ -155,10 +185,12 @@ class RenderCurrentAndNext(
 
         drawFocusedEvent(
             next,
+            nextTitleRenderable,
             canvas,
             calendarIcon,
             nextTimeString,
             nextTitleBounds,
+            zonedDateTime,
             renderParameters
         )
 

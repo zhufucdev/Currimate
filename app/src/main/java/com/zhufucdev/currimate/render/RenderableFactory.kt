@@ -1,6 +1,7 @@
 package com.zhufucdev.currimate.render
 
 import android.content.Context
+import android.util.Log
 import com.zhufucdev.currimate.CalendarEvent
 import com.zhufucdev.currimate.beginInstant
 import com.zhufucdev.currimate.contains
