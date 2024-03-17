@@ -13,7 +13,6 @@ import com.zhufucdev.currimate.theme.BodyPaint
 import com.zhufucdev.currimate.theme.LargeTitlePaint
 import com.zhufucdev.currimate.theme.TextPaint
 import java.time.ZonedDateTime
-import kotlin.math.roundToInt
 
 fun drawFocusedEvent(
     event: CalendarEvent,
@@ -35,14 +34,16 @@ fun drawFocusedEvent(
     val titleBoundsMapped = RectF(0f, 0f, titleBounds.width(), titleBounds.height())
 
     if (renderParameters.drawMode != DrawMode.AMBIENT) {
-        node.setPosition(titleBounds.toRect().apply { bottom += 10 }) // TODO better fix (text baseline)
+        val position = titleBounds.toRect().apply { bottom += 10 } // TODO better fix (text baseline)
+        node.setPosition(position)
+        val extendedBounds = Rect(position).apply { offsetTo(0, 0) }
         val titleCanvas = node.beginRecording()
         renderable.render(
-            titleCanvas,
-            titleBoundsMapped.toRect(),
-            titleBounds,
-            zonedDateTime,
-            renderParameters
+            canvas = titleCanvas,
+            bounds = extendedBounds,
+            contentBounds = titleBoundsMapped,
+            zonedDateTime = zonedDateTime,
+            renderParameters = renderParameters
         )
         node.endRecording()
         canvas.drawBitmap(
@@ -52,14 +53,16 @@ fun drawFocusedEvent(
             largeTitlePaint
         )
     } else {
-        node.setPosition(Rect(titleBounds.toRect()).apply {
+        val position = Rect(titleBounds.toRect()).apply {
             left -= calendarIcon.width / 2
             bottom += 10
-        })
+        }
+        val extendedBounds = Rect(position).apply { offsetTo(0, 0) }
+        node.setPosition(position)
         val titleCanvas = node.beginRecording()
         renderable.render(
             titleCanvas,
-            titleBoundsMapped.toRect(),
+            extendedBounds,
             titleBoundsMapped,
             zonedDateTime,
             renderParameters

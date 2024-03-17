@@ -2,9 +2,15 @@ package com.zhufucdev.currimate.render
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.Shader
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import com.zhufucdev.currimate.watchface.UserStyleHolder
@@ -41,12 +47,29 @@ class RenderText(
                 paint
             )
         } else if (renderParameters.drawMode != DrawMode.AMBIENT) {
+            val leftMaskPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                shader = LinearGradient(
+                    bounds.left.toFloat(),
+                    0f,
+                    bounds.exactCenterX(),
+                    0f,
+                    intArrayOf(
+                        Color.Black.toArgb(),
+                        Color.Transparent.toArgb(),
+                    ),
+                    floatArrayOf(0f, 40f / bounds.width()),
+                    Shader.TileMode.MIRROR
+                )
+                xfermode = PorterDuffXfermode(PorterDuff.Mode.XOR)
+            }
+
             val frames = frames
             frame = (frame + 1) % frames
             val offset = -frame * 1f / frames * (textBounds.width() + MARGIN)
-            val y = bounds.exactCenterY() + textBounds.height() / 2f
+            val y = contentBounds.centerY() + textBounds.height() / 2f
             canvas.drawText(text, offset + bounds.left, y, paint)
             canvas.drawText(text, offset + MARGIN + textBounds.width(), y, paint)
+            canvas.drawRect(bounds, leftMaskPaint)
         } else {
             var remaining = bounds.width() * text.length / textBounds.width()
             var truncatedText = text.substring(0 until remaining) + "..."
@@ -59,7 +82,7 @@ class RenderText(
             canvas.drawText(
                 truncatedText,
                 bounds.exactCenterX() - width / 2f,
-                bounds.exactCenterY() + textBounds.height() / 2f,
+                contentBounds.centerY() + textBounds.height() / 2f,
                 paint
             )
         }

@@ -155,19 +155,20 @@ class RenderCurrentAndNext(
         run {
             currTitleRenderable.paint = titlePaint
             val node = RenderNode("current event title")
-            node.setPosition(Rect(currTitleSize).apply {
+            val position = Rect(currTitleSize).apply {
                 offsetTo(
                     (contentBounds.centerX() - currTitleSize.width() / 2).toInt(),
                     contentBounds.top.toInt()
                 )
                 bottom += 10
-            })
+            }
+            node.setPosition(position)
             val c = node.beginRecording()
             val mapped = Rect(currTitleSize)
             mapped.offsetTo(0, 0)
             currTitleRenderable.render(
                 c,
-                mapped,
+                position.apply { offsetTo(0, 0) },
                 mapped.toRectF(),
                 zonedDateTime,
                 renderParameters
